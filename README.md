@@ -1,47 +1,220 @@
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-"# CertiTrack" 
-=======
->>>>>>> 0a3b1fa (first commit)
-# CertiTrack
+# CertiTrack Backend (Spring Boot)
 
-Production-ready React + Vite web app with Firebase Auth, Firestore, and Storage for certificate lifecycle management.
+Simple backend for React Login/Signup + Google login flow.
 
-## Setup
-1. `npm install`
-2. Copy `.env.example` to `.env` and paste Firebase config values.
-3. `npm run dev`
+## Tech Stack
+- Spring Boot 3.1.12
+- Java 17
+- Maven
+- MySQL
 
-## Auth
-- Single `/login` page for Email/Password login, sign-up toggle, and Google login.
-- Roles loaded from Firestore `users/{uid}` and redirected automatically:
-  - user -> `/dashboard`
-  - admin -> `/admin/dashboard`
-- First-time Google user is auto-created with `role: user`.
-- Optional admin override via `VITE_ADMIN_EMAILS`.
+## Package
+`com.certitrack.backend`
 
-## Collections
-### users/{uid}
-`{ email, name, role, createdAt }`
+## Project Structure
+```
+com.certitrack.backend
+│
+├── controller
+│   └── AuthController.java
+├── service
+│   └── UserService.java
+├── repository
+│   └── UserRepository.java
+├── entity
+│   └── User.java
+├── dto
+│   ├── RegisterRequest.java
+│   ├── LoginRequest.java
+│   ├── GoogleLoginRequest.java
+│   └── AuthResponse.java
+└── CertitrackBackendApplication.java
+```
 
-### certificates/{id}
-`{ uid, title, issuer, category, issueDate, expiryDate|null, credentialId, credentialUrl, notes, proofUrl, proofPath, verified, createdAt }`
+## MySQL Setup
 
-## Features
-- Role-based protected nested routing + layouts and sidebars.
-- User dashboard with KPI cards, alerts, upcoming renewals table, and raw information snapshot.
-- Admin command-center dashboard with org metrics, issuer insights, governance notes, and raw records table.
-- User certificate CRUD with search/filter + status + PDF/proof column.
-- Renewal grouping for user and admin views.
-- Chatbot helper widget on all pages.
-- Pastel professional glass UI (plain CSS, no Tailwind/MUI).
+### 1) Create database
+```sql
+CREATE DATABASE aidss2;
+```
 
-## Firebase Security
-Use provided `firestore.rules` and deploy rules to Firestore.
-<<<<<<< HEAD
-=======
->>>>>>> 61c6564 (First commit)
->>>>>>> 0a3b1fa (first commit)
-"# CertiTrack-Project" 
-"# CertiTrack-Project" 
+### 2) Use database
+```sql
+USE aidss2;
+```
+
+### 3) Create users table
+```sql
+CREATE TABLE users (
+  id BIGINT NOT NULL AUTO_INCREMENT,
+  name VARCHAR(100) NOT NULL,
+  email VARCHAR(150) NOT NULL UNIQUE,
+  password VARCHAR(255) NOT NULL,
+  role VARCHAR(50) NOT NULL DEFAULT 'user',
+  provider VARCHAR(50) NOT NULL DEFAULT 'manual',
+  PRIMARY KEY (id)
+);
+```
+
+### 4) Sample insert
+```sql
+INSERT INTO users (name, email, password, role, provider)
+VALUES ('Renu', 'renu@gmail.com', '1234', 'user', 'manual');
+```
+
+## Configure database connection
+Update `src/main/resources/application.properties` if your username/password is different:
+```properties
+spring.datasource.url=jdbc:mysql://localhost:3306/aidss2
+spring.datasource.username=root
+spring.datasource.password=root
+```
+
+## Run in Spring Tool Suite (STS) - Step by Step
+1. Open STS.
+2. Click **File > Import > Existing Maven Projects**.
+3. Select this project folder (`backend-cetitrack-s2`).
+4. Wait for Maven dependencies to download.
+5. Ensure MySQL server is running.
+6. Open `application.properties` and confirm DB credentials.
+7. Run main class: `CertitrackBackendApplication`.
+8. Verify app starts on `http://localhost:8080`.
+
+## API Endpoints
+Base URL: `http://localhost:8080/api/auth`
+
+### 1) Register
+**POST** `/register`
+
+Request body:
+```json
+{
+  "name": "Renu",
+  "email": "renu@gmail.com",
+  "password": "1234"
+}
+```
+
+Success response:
+```json
+{
+  "message": "User registered successfully",
+  "status": true
+}
+```
+
+If email exists:
+```json
+{
+  "message": "Email already registered",
+  "status": false
+}
+```
+
+### 2) Login
+**POST** `/login`
+
+Request body:
+```json
+{
+  "email": "renu@gmail.com",
+  "password": "1234"
+}
+```
+
+Success response:
+```json
+{
+  "message": "Login successful",
+  "status": true,
+  "name": "Renu",
+  "role": "user"
+}
+```
+
+Invalid response:
+```json
+{
+  "message": "Invalid email or password",
+  "status": false
+}
+```
+
+### 3) Google Login
+**POST** `/google-login`
+
+Request body:
+```json
+{
+  "name": "Renu",
+  "email": "renu@gmail.com"
+}
+```
+
+Response:
+```json
+{
+  "message": "Google login successful",
+  "status": true,
+  "name": "Renu",
+  "role": "user"
+}
+```
+
+## Thunder Client Testing in VS Code
+1. Start Spring Boot app.
+2. Open VS Code > Thunder Client extension.
+3. Create new request.
+
+### Register test
+- Method: `POST`
+- URL: `http://localhost:8080/api/auth/register`
+- Headers: `Content-Type: application/json`
+- Body:
+```json
+{
+  "name": "Renu",
+  "email": "renu@gmail.com",
+  "password": "1234"
+}
+```
+- Click **Send**.
+
+### Login test
+- Method: `POST`
+- URL: `http://localhost:8080/api/auth/login`
+- Headers: `Content-Type: application/json`
+- Body:
+```json
+{
+  "email": "renu@gmail.com",
+  "password": "1234"
+}
+```
+- Click **Send**.
+
+### Google login test
+- Method: `POST`
+- URL: `http://localhost:8080/api/auth/google-login`
+- Headers: `Content-Type: application/json`
+- Body:
+```json
+{
+  "name": "Renu",
+  "email": "renu@gmail.com"
+}
+```
+- Click **Send**.
+
+## React Axios Example
+```javascript
+import axios from "axios";
+
+const BASE_URL = "http://localhost:8080/api/auth";
+
+export const registerUser = (data) => axios.post(`${BASE_URL}/register`, data);
+export const loginUser = (data) => axios.post(`${BASE_URL}/login`, data);
+export const googleLoginUser = (data) => axios.post(`${BASE_URL}/google-login`, data);
+```
+
+> No JWT/Spring Security is used in this version. Passwords are matched as plain text (for learning/demo).
