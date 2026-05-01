@@ -1,9 +1,0 @@
-com\certitrack\backend\controller\AuthController.class
-com\certitrack\backend\dto\GoogleLoginRequest.class
-com\certitrack\backend\dto\RegisterRequest.class
-com\certitrack\backend\repository\UserRepository.class
-com\certitrack\backend\entity\User.class
-com\certitrack\backend\CertitrackBackendApplication.class
-com\certitrack\backend\service\UserService.class
-com\certitrack\backend\dto\AuthResponse.class
-com\certitrack\backend\dto\LoginRequest.class
